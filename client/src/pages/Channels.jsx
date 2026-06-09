@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { placeholderAvatar } from '../components/CreatorCarousel';
 
+
 export default function Channels() {
   const [creators, setCreators] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +32,7 @@ export default function Channels() {
               key={c.id}
               className="browse-card"
               style={{ animationDelay: `${i * 0.06}s` }}
-              onClick={() => navigate(`/?creator=${c.id}`)}
+              onClick={() => navigate(`/channel/${c.id}`)}
             >
               <img
                 className="browse-card-img"

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { formatViews, timeAgo, isEmbeddable, likedVideos, savedVideos, watchLaterVideos } from '../api';
+import { formatViews, timeAgo, isEmbeddable, likedVideos } from '../api';
 import { placeholderAvatar } from './CreatorCarousel';
 
 export default function VideoCard({ video }) {
@@ -11,13 +11,11 @@ export default function VideoCard({ video }) {
   const WatchLink = external ? 'a' : Link;
 
   const [liked, setLiked] = useState(() => likedVideos.has(video.id));
-  const [saved, setSaved] = useState(() => savedVideos.has(video.id));
-  const [watchLater, setWatchLater] = useState(() => watchLaterVideos.has(video.id));
 
-  function action(e, store, setter) {
+  function toggleLike(e) {
     e.preventDefault();
     e.stopPropagation();
-    setter(store.toggle(video.id));
+    setLiked(likedVideos.toggle(video.id));
   }
 
   return (
@@ -26,39 +24,20 @@ export default function VideoCard({ video }) {
         <div className="thumb-wrap">
           <img src={video.thumbnail || placeholderAvatar(video.title)} alt={video.title} loading="lazy" />
           <div className="thumb-gradient" />
-          {video.duration && <span className="duration-badge">{video.duration}</span>}
         </div>
       </WatchLink>
 
       <div className="video-card-body">
-        <WatchLink {...watchTo}>
-          <p className="video-title">{video.title}</p>
-        </WatchLink>
-
-        <div className="card-actions">
-          <button
-            className={`card-action-btn ${liked ? 'active' : ''}`}
-            onClick={(e) => action(e, likedVideos, setLiked)}
-          >
-            {liked ? '♥' : '♡'} Like
-          </button>
-          <button
-            className={`card-action-btn ${saved ? 'active' : ''}`}
-            onClick={(e) => action(e, savedVideos, setSaved)}
-          >
-            {saved ? '★' : '☆'} Save
-          </button>
-          <button
-            className={`card-action-btn ${watchLater ? 'active' : ''}`}
-            onClick={(e) => action(e, watchLaterVideos, setWatchLater)}
-          >
-            {watchLater ? '✓' : '+'} Later
-          </button>
+        <div className="card-top-row">
+          {video.duration && <span className="card-duration">{video.duration}</span>}
+          <WatchLink {...watchTo} className="video-title-link">
+            <p className="video-title">{video.title}</p>
+          </WatchLink>
         </div>
 
         <div className="video-meta">
           {video.creator && (
-            <Link to={`/?creator=${video.creator.id}`}>
+            <Link to={`/channel/${video.creator.id}`}>
               <img
                 className="creator-avatar"
                 src={video.creator.avatar || placeholderAvatar(video.creator.name)}
@@ -68,7 +47,7 @@ export default function VideoCard({ video }) {
           )}
           <div className="video-info">
             {video.creator && (
-              <Link to={`/?creator=${video.creator.id}`} className="video-creator-name">
+              <Link to={`/channel/${video.creator.id}`} className="video-creator-name">
                 {video.creator.name}
               </Link>
             )}
@@ -85,9 +64,15 @@ export default function VideoCard({ video }) {
             <div className="video-stats">
               <span>{formatViews(video.views)} views</span>
               <span className="dot">{timeAgo(video.createdAt)}</span>
-              <span>♥ {formatViews(video.likes)}</span>
             </div>
           </div>
+          <button
+            className={`like-pill ${liked ? 'active' : ''}`}
+            onClick={toggleLike}
+            title={liked ? 'Unlike' : 'Like'}
+          >
+            {liked ? '♥' : '♡'}
+          </button>
         </div>
       </div>
     </div>

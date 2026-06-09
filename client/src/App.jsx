@@ -6,6 +6,7 @@ import Watch from './pages/Watch';
 import Admin from './pages/Admin';
 import ActorPage from './pages/ActorPage';
 import Channels from './pages/Channels';
+import Channel from './pages/Channel';
 import ActorsBrowse from './pages/ActorsBrowse';
 import ActressesBrowse from './pages/ActressesBrowse';
 import Favorites from './pages/Favorites';
@@ -18,6 +19,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/channels" element={<Channels />} />
+          <Route path="/channel/:id" element={<Channel />} />
           <Route path="/actors" element={<ActorsBrowse />} />
           <Route path="/actresses" element={<ActressesBrowse />} />
           <Route path="/favorites" element={<Favorites />} />

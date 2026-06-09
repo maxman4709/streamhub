@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-// Free-text input with a name-suggestion dropdown. In `multi` mode the value is
-// a comma-separated list (e.g. cast names) and suggestions filter/replace the
-// last (currently-typed) entry; otherwise the whole value is replaced.
 export default function SuggestInput({ value, onChange, options, multi = false, placeholder }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
@@ -16,8 +13,13 @@ export default function SuggestInput({ value, onChange, options, multi = false, 
   }, []);
 
   const token = (multi ? value.split(',').pop() : value).trim().toLowerCase();
-  const matches = token
-    ? options.filter((o) => o.toLowerCase().includes(token) && o.toLowerCase() !== token).slice(0, 6)
+
+  // show all options when focused with no text, filter when typing
+  const matches = open
+    ? (token
+        ? options.filter((o) => o.toLowerCase().includes(token) && o.toLowerCase() !== token)
+        : options
+      ).slice(0, 8)
     : [];
 
   function pick(name) {

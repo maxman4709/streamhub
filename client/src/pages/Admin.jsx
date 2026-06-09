@@ -10,11 +10,29 @@ const EMPTY_VIDEO = {
   thumbnail: '',
   description: '',
   duration: '',
+  durationH: '',
+  durationM: '',
+  durationS: '',
   creatorName: '',
   categoryId: '',
   cast: '',
   tags: '',
 };
+
+function parseDuration(str) {
+  if (!str) return { h: '', m: '', s: '' };
+  const parts = str.split(':').map(Number);
+  if (parts.length === 3) return { h: String(parts[0]), m: String(parts[1]).padStart(2,'0'), s: String(parts[2]).padStart(2,'0') };
+  if (parts.length === 2) return { h: '', m: String(parts[0]), s: String(parts[1]).padStart(2,'0') };
+  return { h: '', m: str, s: '' };
+}
+function buildDuration(h, m, s) {
+  const mm = m || '0';
+  const ss = (s || '0').padStart(2, '0');
+  if (h) return `${h}:${mm.padStart(2,'0')}:${ss}`;
+  if (mm !== '0' || ss !== '00') return `${mm}:${ss}`;
+  return '';
+}
 
 const EMPTY_CREATOR = { id: null, name: '', avatar: '', verified: false };
 const EMPTY_ACTOR = { id: null, name: '', photo: '', bio: '', gender: '' };
@@ -78,6 +96,7 @@ function VideosManager() {
   }
 
   function startEdit(video) {
+    const { h, m, s } = parseDuration(video.duration || '');
     setForm({
       id: video.id,
       title: video.title,
@@ -85,6 +104,9 @@ function VideosManager() {
       thumbnail: video.thumbnail || '',
       description: video.description || '',
       duration: video.duration || '',
+      durationH: h,
+      durationM: m,
+      durationS: s,
       creatorName: video.creator ? video.creator.name : '',
       categoryId: video.category ? String(video.category.id) : '',
       cast: video.cast.map((p) => p.name).join(', '),
@@ -115,7 +137,7 @@ function VideosManager() {
       videoUrl: form.videoUrl.trim(),
       thumbnail: form.thumbnail.trim(),
       description: form.description.trim(),
-      duration: form.duration.trim(),
+      duration: buildDuration(form.durationH, form.durationM, form.durationS),
       creatorName: form.creatorName.trim(),
       categoryId: form.categoryId ? Number(form.categoryId) : null,
       cast: form.cast.split(',').map((t) => t.trim()).filter(Boolean),
@@ -172,14 +194,37 @@ function VideosManager() {
 
         <div className="field">
           <label>Duration</label>
-          <input
-            value={form.duration}
-            onChange={(e) => update('duration', e.target.value)}
-            placeholder="14:28"
-            pattern="^\d{1,2}:\d{2}(:\d{2})?$"
-            title="Format: mm:ss or hh:mm:ss"
-          />
-          <span className="field-hint">Format: mm:ss (e.g. 14:28) or hh:mm:ss</span>
+          <div className="duration-inputs">
+            <div className="dur-box">
+              <input
+                type="number" min="0" max="23"
+                value={form.durationH}
+                onChange={(e) => update('durationH', e.target.value)}
+                placeholder="0"
+              />
+              <span className="dur-label">h</span>
+            </div>
+            <span className="dur-sep">:</span>
+            <div className="dur-box">
+              <input
+                type="number" min="0" max="59"
+                value={form.durationM}
+                onChange={(e) => update('durationM', e.target.value)}
+                placeholder="00"
+              />
+              <span className="dur-label">m</span>
+            </div>
+            <span className="dur-sep">:</span>
+            <div className="dur-box">
+              <input
+                type="number" min="0" max="59"
+                value={form.durationS}
+                onChange={(e) => update('durationS', e.target.value)}
+                placeholder="00"
+              />
+              <span className="dur-label">s</span>
+            </div>
+          </div>
         </div>
 
         <div className="field">
@@ -489,7 +534,7 @@ function ActorsManager() {
         </div>
         <div className="field span-2">
           <label>Bio</label>
-          <textarea rows={2} value={form.bio} onChange={(e) => update('bio', e.target.value)} placeholder="Short bio shown on their profile page" />
+          <textarea rows={4} value={form.bio} onChange={(e) => update('bio', e.target.value)} placeholder="Short bio shown on their profile page" />
         </div>
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">{form.id ? 'Save changes' : 'Add cast member'}</button>
