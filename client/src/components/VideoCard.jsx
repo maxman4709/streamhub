@@ -27,6 +27,9 @@ export default function VideoCard({ video }) {
       <WatchLink {...watchTo} className="thumb-link">
         <div className="thumb-wrap">
           <img src={video.thumbnail || placeholderAvatar(video.title)} alt={video.title} loading="lazy" />
+          <div className="thumb-play-overlay">
+            <div className="thumb-play-icon">▶</div>
+          </div>
           {video.duration && <span className="duration-badge">{video.duration}</span>}
         </div>
         <p className="video-title">{video.title}</p>

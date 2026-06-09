@@ -5,10 +5,10 @@ import CreatorCarousel, { placeholderAvatar } from '../components/CreatorCarouse
 import TagFilters from '../components/TagFilters';
 import VideoCard from '../components/VideoCard';
 
-function CastRow({ title, people }) {
+function CastRow({ title, people, gender }) {
   if (people.length === 0) return null;
   return (
-    <div className="cast-browse-row">
+    <div className={`cast-browse-row cast-row--${gender}`}>
       <h3 className="section-label">{title}</h3>
       <div className="carousel">
         {people.map((p) => (
@@ -105,8 +105,8 @@ export default function Home() {
       <CreatorCarousel creators={creators} />
       <TagFilters tags={allTags} active={activeTag} onSelect={selectTag} />
 
-      <CastRow title="Actors" people={actors} />
-      <CastRow title="Actresses" people={actresses} />
+      <CastRow title="Actors" people={actors} gender="male" />
+      <CastRow title="Actresses" people={actresses} gender="female" />
 
       {filterChips.length > 0 && (
         <div className="active-filters">
