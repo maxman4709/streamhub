@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { api, formatViews, timeAgo } from '../api';
+import { api, formatViews, timeAgo, isDirectMediaUrl, isStreamtapeUrl, getStreamtapeEmbedUrl } from '../api';
 import { placeholderAvatar } from '../components/CreatorCarousel';
 
 export default function Watch() {
@@ -35,7 +35,32 @@ export default function Watch() {
   return (
     <div className="watch-layout">
       <div className="player-wrap">
-        <video controls poster={video.thumbnail} onPlay={handlePlay} src={video.videoUrl} />
+        {isStreamtapeUrl(video.videoUrl) ? (
+          <iframe
+            src={getStreamtapeEmbedUrl(video.videoUrl)}
+            width="100%"
+            height="100%"
+            frameBorder="0"
+            scrolling="no"
+            allowFullScreen
+            onLoad={handlePlay}
+          />
+        ) : isDirectMediaUrl(video.videoUrl) ? (
+          <video controls poster={video.thumbnail} onPlay={handlePlay} src={video.videoUrl} />
+        ) : (
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', gap:16 }}>
+            <img src={video.thumbnail} alt={video.title} style={{ maxHeight:200, borderRadius:10, objectFit:'cover' }} />
+            <a
+              href={video.videoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+              onClick={handlePlay}
+            >
+              ▶ Watch on source site
+            </a>
+          </div>
+        )}
       </div>
 
       <h1 className="watch-title">{video.title}</h1>

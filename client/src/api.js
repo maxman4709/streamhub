@@ -105,12 +105,25 @@ export function formatViews(n) {
 }
 
 const DIRECT_MEDIA_RE = /\.(mp4|webm|ogg|m3u8|mov)(\?.*)?$/i;
+const STREAMTAPE_RE = /streamtape\.(com|to|net|xyz|cc)\/v\/([a-zA-Z0-9_-]+)/i;
 
-// true when the URL points straight at a media file the <video> tag can play;
-// false for webpage links (YouTube, Vimeo, Telegram posts, etc.) that should
-// instead be opened in a new tab so the source site's own player handles it
 export function isDirectMediaUrl(url) {
   return DIRECT_MEDIA_RE.test(url || '');
+}
+
+export function isStreamtapeUrl(url) {
+  return STREAMTAPE_RE.test(url || '');
+}
+
+export function getStreamtapeEmbedUrl(url) {
+  const m = (url || '').match(STREAMTAPE_RE);
+  if (!m) return null;
+  return `https://streamtape.com/e/${m[2]}/`;
+}
+
+// true = can be played inside the site (direct file OR streamtape embed)
+export function isEmbeddable(url) {
+  return isDirectMediaUrl(url || '') || isStreamtapeUrl(url || '');
 }
 
 export function timeAgo(dateStr) {

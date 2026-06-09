@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { formatViews, timeAgo, isDirectMediaUrl, likedVideos, savedVideos, watchLaterVideos } from '../api';
+import { formatViews, timeAgo, isEmbeddable, likedVideos, savedVideos, watchLaterVideos } from '../api';
 import { placeholderAvatar } from './CreatorCarousel';
 
 export default function VideoCard({ video }) {
-  const external = !isDirectMediaUrl(video.videoUrl);
+  const external = !isEmbeddable(video.videoUrl);
   const watchTo = external
     ? { href: video.videoUrl, target: '_blank', rel: 'noopener noreferrer' }
     : { to: `/watch/${video.id}` };
