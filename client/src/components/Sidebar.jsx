@@ -1,29 +1,50 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
-const ICONS = [
-  { to: '/', label: 'Home', glyph: '⌂' },
-  { to: '/?sort=trending', label: 'Trending', glyph: '◎' },
-  { to: '/saved', label: 'Saved', glyph: '🔖' },
-  { to: '/liked', label: 'Liked', glyph: '♥' },
-  { to: '/history', label: 'History', glyph: '⏱' },
-  { to: '/admin', label: 'Admin', glyph: '⚙' },
+const NAV = [
+  { to: '/',           label: 'Home',      icon: '⌂',  end: true },
+  { to: '/channels',   label: 'Channels',  icon: '◉' },
+  { to: '/actresses',  label: 'Actresses', icon: '♀' },
+  { to: '/actors',     label: 'Actors',    icon: '♂' },
+  { to: '/favorites',  label: 'Favorites', icon: '♥' },
 ];
+
+function cls({ isActive }) {
+  return `nav-item${isActive ? ' active' : ''}`;
+}
 
 export default function Sidebar() {
   return (
-    <nav className="sidebar">
-      <div className="sidebar-logo">▶</div>
-      {ICONS.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          end={item.to === '/'}
-          className={({ isActive }) => `sidebar-icon${isActive ? ' active' : ''}`}
-          title={item.label}
-        >
-          {item.glyph}
+    <>
+      {/* Desktop sidebar */}
+      <nav className="sidebar">
+        <div className="sidebar-logo">▶ StreamHub</div>
+
+        {NAV.map((item) => (
+          <NavLink key={item.to} to={item.to} end={item.end} className={cls}>
+            <span className="nav-icon">{item.icon}</span>
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+
+        <div className="sidebar-divider" />
+
+        <NavLink to="/admin" className={cls}>
+          <span className="nav-icon">⚙</span>
+          <span>Admin</span>
         </NavLink>
-      ))}
-    </nav>
+      </nav>
+
+      {/* Mobile bottom nav */}
+      <nav className="bottom-nav">
+        {NAV.map((item) => (
+          <NavLink key={item.to} to={item.to} end={item.end}
+            className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
+          >
+            <span className="nav-icon">{item.icon}</span>
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+      </nav>
+    </>
   );
 }

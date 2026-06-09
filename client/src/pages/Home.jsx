@@ -1,34 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../api';
-import CreatorCarousel, { placeholderAvatar } from '../components/CreatorCarousel';
+import CreatorCarousel from '../components/CreatorCarousel';
 import TagFilters from '../components/TagFilters';
 import VideoCard from '../components/VideoCard';
-
-function CastRow({ title, people, gender }) {
-  if (people.length === 0) return null;
-  return (
-    <div className={`cast-browse-row cast-row--${gender}`}>
-      <h3 className="section-label">{title}</h3>
-      <div className="carousel">
-        {people.map((p) => (
-          <Link key={p.id} to={`/actor/${p.id}`} className="cast-pill">
-            <img src={p.photo || placeholderAvatar(p.name)} alt={p.name} />
-            <span>{p.name}</span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [videos, setVideos] = useState([]);
   const [creators, setCreators] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [actors, setActors] = useState([]);
-  const [actresses, setActresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
@@ -40,8 +21,6 @@ export default function Home() {
   useEffect(() => {
     api.getCreators().then(setCreators).catch(() => {});
     api.getCategories().then(setCategories).catch(() => {});
-    api.getActors({ gender: 'male' }).then(setActors).catch(() => {});
-    api.getActors({ gender: 'female' }).then(setActresses).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -90,23 +69,19 @@ export default function Home() {
   return (
     <div>
       <div className="topbar">
-        <div className="brand">▶ StreamHub</div>
+        <h1 className="page-title"><span>Home</span></h1>
         <div className="topbar-actions">
           <input
             className="search-input"
-            placeholder="Search videos..."
+            placeholder="Search videos…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <a className="admin-link" href="/admin">Manage</a>
         </div>
       </div>
 
       <CreatorCarousel creators={creators} />
       <TagFilters tags={allTags} active={activeTag} onSelect={selectTag} />
-
-      <CastRow title="Actors" people={actors} gender="male" />
-      <CastRow title="Actresses" people={actresses} gender="female" />
 
       {filterChips.length > 0 && (
         <div className="active-filters">
@@ -125,7 +100,11 @@ export default function Home() {
         <p className="empty-state">No videos match your filters yet.</p>
       ) : (
         <div className="video-grid">
-          {videos.map((v) => <VideoCard key={v.id} video={v} />)}
+          {videos.map((v, i) => (
+            <div key={v.id} style={{ animationDelay: `${i * 0.05}s` }}>
+              <VideoCard video={v} />
+            </div>
+          ))}
         </div>
       )}
     </div>
