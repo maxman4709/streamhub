@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { initDb } = require('./db');
 
 const videosRouter = require('./routes/videos');
 const creatorsRouter = require('./routes/creators');
@@ -20,4 +21,6 @@ app.use('/api/categories', categoriesRouter);
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`API server running on http://localhost:${PORT}`));
+initDb()
+  .then(() => app.listen(PORT, () => console.log(`API server running on http://localhost:${PORT}`)))
+  .catch((err) => { console.error('DB init failed:', err); process.exit(1); });

@@ -8,43 +8,59 @@ function serialize(row) {
   return { id: row.id, name: row.name };
 }
 
-router.get('/', (req, res) => {
-  const rows = db.prepare('SELECT * FROM categories ORDER BY name').all();
-  res.json(rows.map(serialize));
-});
-
-router.post('/', requireAuth, (req, res) => {
-  const { name } = req.body;
-  if (!name || !name.trim()) return res.status(400).json({ error: 'name is required' });
-
+router.get('/', async (req, res) => {
   try {
-    const result = db.prepare('INSERT INTO categories (name) VALUES (?)').run(name.trim());
-    const row = db.prepare('SELECT * FROM categories WHERE id = ?').get(result.lastInsertRowid);
-    res.status(201).json(serialize(row));
+    const { rows } = await db.query('SELECT * FROM categories ORDER BY name');
+    res.json(rows.map(serialize));
   } catch (err) {
-    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-      return res.status(409).json({ error: 'A category with this name already exists' });
-    }
-    throw err;
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-router.put('/:id', requireAuth, (req, res) => {
-  const existing = db.prepare('SELECT id FROM categories WHERE id = ?').get(req.params.id);
-  if (!existing) return res.status(404).json({ error: 'Category not found' });
-
-  const { name } = req.body;
-  if (!name || !name.trim()) return res.status(400).json({ error: 'name is required' });
-
-  db.prepare('UPDATE categories SET name = ? WHERE id = ?').run(name.trim(), req.params.id);
-  const row = db.prepare('SELECT * FROM categories WHERE id = ?').get(req.params.id);
-  res.json(serialize(row));
+router.post('/', requireAuth, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name || !name.trim()) return res.status(400).json({ error: 'name is required' });
+    const { rows } = await db.query(
+      'INSERT INTO categories (name) VALUES ($1) RETURNING *',
+      [name.trim()]
+    );
+    res.status(201).json(serialize(rows[0]));
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'A category with this name already exists' });
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-router.delete('/:id', requireAuth, (req, res) => {
-  const result = db.prepare('DELETE FROM categories WHERE id = ?').run(req.params.id);
-  if (result.changes === 0) return res.status(404).json({ error: 'Category not found' });
-  res.status(204).end();
+router.put('/:id', requireAuth, async (req, res) => {
+  try {
+    const { rows: existing } = await db.query('SELECT id FROM categories WHERE id = $1', [req.params.id]);
+    if (!existing.length) return res.status(404).json({ error: 'Category not found' });
+
+    const { name } = req.body;
+    if (!name || !name.trim()) return res.status(400).json({ error: 'name is required' });
+    const { rows } = await db.query(
+      'UPDATE categories SET name = $1 WHERE id = $2 RETURNING *',
+      [name.trim(), req.params.id]
+    );
+    res.json(serialize(rows[0]));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.delete('/:id', requireAuth, async (req, res) => {
+  try {
+    const { rowCount } = await db.query('DELETE FROM categories WHERE id = $1', [req.params.id]);
+    if (rowCount === 0) return res.status(404).json({ error: 'Category not found' });
+    res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 module.exports = router;

@@ -114,7 +114,7 @@ export function isDirectMediaUrl(url) {
 }
 
 export function timeAgo(dateStr) {
-  const date = new Date(dateStr.replace(' ', 'T') + 'Z');
+  const date = new Date(dateStr);
   const days = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
   if (days < 1) return 'today';
   if (days < 30) return `${days}d`;
