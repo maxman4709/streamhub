@@ -44,6 +44,12 @@ export default function Sidebar() {
             <span>{item.label}</span>
           </NavLink>
         ))}
+        <NavLink to="/admin"
+          className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
+        >
+          <span className="nav-icon">⚙</span>
+          <span>Admin</span>
+        </NavLink>
       </nav>
     </>
   );
