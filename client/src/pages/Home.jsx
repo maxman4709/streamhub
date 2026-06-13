@@ -216,13 +216,19 @@ export default function Home() {
           {heroVideo && <HeroCard video={heroVideo} />}
 
           {gridVideos.length > 0 && (
-            <div className="video-grid">
-              {gridVideos.map((v, i) => (
-                <div key={v.id} style={{ animationDelay: `${i * 0.05}s` }}>
-                  <VideoCard video={v} />
-                </div>
-              ))}
-            </div>
+            <>
+              <h3 className="section-title">
+                <span className="section-title-icon">▶</span>
+                {noFilters ? 'Trending Now' : 'Results'}
+              </h3>
+              <div className="video-grid">
+                {gridVideos.map((v, i) => (
+                  <div key={v.id} style={{ animationDelay: `${i * 0.05}s` }}>
+                    <VideoCard video={v} />
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </>
       )}
